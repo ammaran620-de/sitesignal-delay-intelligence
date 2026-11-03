@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import os
+
 from fastapi.testclient import TestClient
 
 from app import db
@@ -5,30 +9,61 @@ from app.main import app
 
 
 def test_manager_can_read_project_and_run_recovery_but_sales_is_denied(tmp_path, monkeypatch):
+    # Use the same demo credentials that the application seeds from .env.
+    # config.load_dotenv() is called when app modules are imported.
+    manager_password = os.getenv("DEMO_MANAGER_PASSWORD", "Manager@123")
+    technician_password = os.getenv("DEMO_TECHNICIAN_PASSWORD", "Tech@123")
+    sales_password = os.getenv("DEMO_SALES_PASSWORD", "Sales@123")
+
     monkeypatch.setattr(db, "DATABASE_PATH", tmp_path / "sitesignal_api_test.db")
+
     with TestClient(app) as client:
-        manager_login = client.post("/api/login", json={"username": "manager", "password": "Manager@123"})
+        manager_login = client.post(
+            "/api/login",
+            json={"username": "manager", "password": manager_password},
+        )
         assert manager_login.status_code == 200
-        manager_headers = {"Authorization": f"Bearer {manager_login.json()['access_token']}"}
+        manager_headers = {
+            "Authorization": f"Bearer {manager_login.json()['access_token']}"
+        }
 
         overview = client.get("/api/construction/overview", headers=manager_headers)
         assert overview.status_code == 200
         assert overview.json()["metrics"]["completion_delay_days"] == 2
 
-        recovery = client.post("/api/construction/recovery/REC-001", headers=manager_headers)
+        recovery = client.post(
+            "/api/construction/recovery/REC-001", headers=manager_headers
+        )
         assert recovery.status_code == 200
         assert recovery.json()["simulation"]["days_recovered_vs_delayed_schedule"] == 1
 
-        technician_login = client.post("/api/login", json={"username": "technician", "password": "Tech@123"})
+        technician_login = client.post(
+            "/api/login",
+            json={"username": "technician", "password": technician_password},
+        )
         assert technician_login.status_code == 200
-        technician_headers = {"Authorization": f"Bearer {technician_login.json()['access_token']}"}
-        technician_overview = client.get("/api/construction/overview", headers=technician_headers)
+        technician_headers = {
+            "Authorization": f"Bearer {technician_login.json()['access_token']}"
+        }
+
+        technician_overview = client.get(
+            "/api/construction/overview", headers=technician_headers
+        )
         assert technician_overview.status_code == 200
-        technician_recovery = client.post("/api/construction/recovery/REC-001", headers=technician_headers)
+
+        technician_recovery = client.post(
+            "/api/construction/recovery/REC-001", headers=technician_headers
+        )
         assert technician_recovery.status_code == 403
 
-        sales_login = client.post("/api/login", json={"username": "sales", "password": "Sales@123"})
+        sales_login = client.post(
+            "/api/login",
+            json={"username": "sales", "password": sales_password},
+        )
         assert sales_login.status_code == 200
-        sales_headers = {"Authorization": f"Bearer {sales_login.json()['access_token']}"}
+        sales_headers = {
+            "Authorization": f"Bearer {sales_login.json()['access_token']}"
+        }
+
         denied = client.get("/api/construction/overview", headers=sales_headers)
         assert denied.status_code == 403
