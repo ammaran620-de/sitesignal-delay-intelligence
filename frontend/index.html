@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SiteSignal | Delay Cascade Intelligence</title>
-  <link rel="stylesheet" href="/static/styles.css" />
+  <title>SiteSignal | Recruiter Edition v3</title>
+  <link rel="stylesheet" href="/static/styles.css?v=3.0.0" />
 </head>
 <body>
   <div id="loginView" class="login-shell">
@@ -30,7 +30,7 @@
     <div class="login-aside">
       <div class="orb orb-one"></div><div class="orb orb-two"></div>
       <div class="aside-content">
-        <span class="pill">DETERMINISTIC CPM · GEMINI AGENT</span>
+        <span class="pill">CPM ENGINE · EVIDENCE RAG · TOOL ORCHESTRATION</span>
         <h2>Investigate the delay.<br/><em>Trace the cascade.</em></h2>
         <p>Combine schedule mathematics, source-grounded evidence and controlled AI-assisted investigation.</p>
         <div class="aside-points"><span>01&nbsp; Dependency graph validation</span><span>02&nbsp; Critical Path Method</span><span>03&nbsp; Evidence retrieval</span><span>04&nbsp; Schedule-only recovery simulation</span></div>
@@ -42,37 +42,44 @@
     <aside class="sidebar">
       <div class="sidebar-brand"><div class="brand-mark small">SS</div><div><strong>SiteSignal</strong><small>Delay intelligence</small></div></div>
       <div class="side-label">PROJECT WORKSPACE</div>
-      <button class="nav-item active" data-panel="demo"><span class="nav-icon">▶</span> Guided demo</button>
-      <button class="nav-item" data-panel="assistant"><span class="nav-icon">✳</span> AI investigation</button>
-      <button class="nav-item" data-panel="schedule"><span class="nav-icon">⌁</span> Schedule analysis</button>
-      <button class="nav-item" data-panel="evidence"><span class="nav-icon">▤</span> Evidence register</button>
-      <button class="nav-item" data-panel="audit" id="auditNav"><span class="nav-icon">◇</span> Audit trail</button>
+      <button class="nav-item active" data-panel="demo"><span class="nav-icon">▦</span> Overview &amp; walkthrough</button>
+      <button class="nav-item" data-panel="assistant"><span class="nav-icon">⌕</span> AI investigator</button>
+      <button class="nav-item" data-panel="schedule"><span class="nav-icon">▤</span> Schedule &amp; recovery</button>
+      <button class="nav-item" data-panel="evidence"><span class="nav-icon">▧</span> Evidence library</button>
+      <button class="nav-item" data-panel="audit" id="auditNav"><span class="nav-icon">◈</span> Security &amp; audit</button>
       <div class="sidebar-bottom"><div class="secure-status"><span class="status-dot"></span><div><strong>Access controls active</strong><small>Authenticated session</small></div></div><button id="logoutBtn" class="logout">Sign out <span>↗</span></button></div>
     </aside>
 
     <main class="main-area">
-      <header class="topbar"><div><span class="crumb">Project</span><span class="crumb-sep">/</span><strong id="pageTitle">AI investigation</strong></div><div class="top-user"><div class="avatar" id="avatarInitials">AM</div><div><strong id="userName">Alex Morgan</strong><small id="userRole">Project manager</small></div><span class="online-dot"></span></div></header>
+      <header class="topbar"><div><span class="crumb">Project</span><span class="crumb-sep">/</span><strong id="pageTitle">Overview &amp; walkthrough</strong><span class="ui-version-pill">RECRUITER EDITION · V3</span></div><div class="top-user"><div class="avatar" id="avatarInitials">AM</div><div><strong id="userName">Alex Morgan</strong><small id="userRole">Project manager</small></div><span class="online-dot"></span></div></header>
       <section class="page-content">
-        <div class="welcome-row"><div><p class="eyebrow">CONSTRUCTION SCHEDULE INTELLIGENCE · SYNTHETIC SCENARIO</p><h1 id="greeting">Welcome to SiteSignal.</h1><p class="muted" id="projectName">Northgate Community Health Centre</p></div><div class="model-chip"><span class="status-dot"></span> Gemini agent <span class="chip-divider"></span><span id="modelStatus">Checking…</span></div></div>
+        <div class="welcome-row"><div><p class="eyebrow">PROJECT CONTROLS / CONSTRUCTION INTELLIGENCE / PORTFOLIO PROTOTYPE</p><h1 id="greeting">SiteSignal operations overview.</h1><p class="muted" id="projectName">Northgate Community Health Centre</p></div><div class="model-chip"><span class="status-dot"></span> Gemini agent <span class="chip-divider"></span><span id="modelStatus">Checking…</span></div></div>
 
         <div class="stats-grid">
-          <div class="stat-card"><div class="stat-top"><span>Baseline duration</span><span class="stat-symbol">▣</span></div><strong id="statBaseline">—</strong><small id="statBaselineDate">Original schedule</small></div>
-          <div class="stat-card"><div class="stat-top"><span>Forecast duration</span><span class="stat-symbol">◷</span></div><strong id="statForecast">—</strong><small id="statForecastDate">Event-adjusted schedule</small></div>
-          <div class="stat-card accent"><div class="stat-top"><span>Completion variance</span><span class="stat-symbol">!</span></div><strong id="statDelay">—</strong><small>Calculated from dependencies</small></div>
-          <div class="stat-card"><div class="stat-top"><span>Evidence records</span><span class="stat-symbol">▤</span></div><strong id="statEvidence">—</strong><small id="statEvents">Linked delay events</small></div>
+          <div class="stat-card"><div class="stat-top"><span>Baseline duration</span><span class="stat-symbol">01</span></div><strong id="statBaseline">—</strong><small id="statBaselineDate">Original schedule</small></div>
+          <div class="stat-card"><div class="stat-top"><span>Forecast duration</span><span class="stat-symbol">02</span></div><strong id="statForecast">—</strong><small id="statForecastDate">Event-adjusted schedule</small></div>
+          <div class="stat-card accent"><div class="stat-top"><span>Completion variance</span><span class="stat-symbol">03</span></div><strong id="statDelay">—</strong><small>Calculated from dependencies</small></div>
+          <div class="stat-card"><div class="stat-top"><span>Evidence records</span><span class="stat-symbol">04</span></div><strong id="statEvidence">—</strong><small id="statEvents">Linked delay events</small></div>
         </div>
+
+        <section class="capability-strip" aria-label="SiteSignal engineering capabilities">
+          <article class="capability-item"><span class="capability-index">01 / ENGINE</span><strong>Schedule mathematics</strong><p>Dependency graph, CPM, critical path and float are calculated deterministically in Python.</p></article>
+          <article class="capability-item"><span class="capability-index">02 / IMPACT</span><strong>Delay propagation</strong><p>Compare incident effects and trace which activities move the forecast finish.</p></article>
+          <article class="capability-item"><span class="capability-index">03 / EVIDENCE</span><strong>Source-grounded retrieval</strong><p>Search indexed project records and keep source filenames visible in the workflow.</p></article>
+          <article class="capability-item"><span class="capability-index">04 / CONTROL</span><strong>Governed operations</strong><p>Role checks, manager approval boundaries and auditable tool operations.</p></article>
+        </section>
 
         <section id="demoPanel" class="panel content-panel demo-panel">
           <div class="demo-hero">
             <div>
-              <span class="eyebrow">RECRUITER WALKTHROUGH · 4–6 MINUTES</span>
-              <h2>See the engineering, not just the chatbot.</h2>
-              <p class="muted">A repeatable demonstration of deterministic schedule analysis, source-linked incident investigation, recovery what-if analysis and server-enforced role boundaries.</p>
-              <div class="demo-tags"><span>12 activities</span><span>2 synthetic delay events</span><span>3 evidence documents</span><span>2 security roles tested</span></div>
+              <span class="eyebrow">PRODUCT WALKTHROUGH / 4–6 MINUTES</span>
+              <h2>From site incident to schedule impact.</h2>
+              <p class="muted">A guided view of the complete workflow: calculate the schedule, investigate reported events, inspect source evidence, model a recovery option and verify access boundaries.</p>
+              <div class="demo-tags"><span>12 schedule activities</span><span>2 delay scenarios</span><span>3 synthetic evidence files</span><span>Role-based access checks</span></div>
             </div>
             <div class="demo-hero-actions">
-              <button id="runGuidedDemoBtn" class="primary">Run guided demo <span>→</span></button>
-              <button id="runGeminiDemoBtn" class="secondary">Run live Gemini investigation</button>
+              <button id="runGuidedDemoBtn" class="primary">Run full walkthrough <span>→</span></button>
+              <button id="runGeminiDemoBtn" class="secondary">Test live AI investigation</button>
               <a class="demo-script-link" href="/static/demo_script.md" target="_blank" rel="noopener">Open 90-second recording script ↗</a>
             </div>
           </div>
@@ -99,7 +106,7 @@
 
         <section id="assistantPanel" class="panel assistant-layout hidden">
           <div class="chat-card">
-            <div class="card-heading"><div><span class="eyebrow">EVIDENCE-GROUNDED INVESTIGATION</span><h2>Ask SiteSignal</h2></div><span class="live-badge"><i></i> READY</span></div>
+            <div class="card-heading"><div><span class="eyebrow">EVIDENCE-GROUNDED INVESTIGATION</span><h2>AI-assisted investigation</h2></div><span class="live-badge" id="agentStatusBadge"><i></i> CHECKING CONFIGURATION</span></div>
             <div id="chatMessages" class="chat-messages">
               <div class="message assistant-message"><div class="bot-avatar">SS</div><div class="bubble-wrap"><span class="message-label">SITESIGNAL · GEMINI</span><div class="bubble">I can calculate the project schedule, investigate a delay event against its evidence record, retrieve the demonstration procedure and simulate a predefined recovery scenario. All project data is synthetic.</div></div></div>
             </div>
@@ -126,12 +133,12 @@
           <div class="recovery-box"><div><span class="eyebrow">WHAT-IF ANALYSIS</span><h3>Recovery scenario REC-001</h3><p class="muted">Expedite procurement by one day. This only changes the modelled duration and does not approve a real schedule change.</p><div id="recoveryResult" class="muted small-copy">Run the scenario to view calculated impact.</div></div><button id="simulateBtn" class="primary">Simulate recovery</button></div>
         </section>
 
-        <section id="evidencePanel" class="panel content-panel hidden"><div class="section-heading"><div><span class="eyebrow">SOURCE TRACEABILITY</span><h2>Evidence register</h2><p class="muted">Synthetic reports and illustrative procedure used by the demonstration.</p></div><span class="count-pill" id="evidenceCount">0 sources</span></div><div id="evidenceList" class="data-list"></div></section>
-        <section id="auditPanel" class="panel content-panel hidden"><div class="section-heading"><div><span class="eyebrow">SECURITY & TRACEABILITY</span><h2>Audit trail</h2><p class="muted">Recent authentication and construction-tool operations.</p></div></div><div id="auditList" class="data-list"></div></section>
+        <section id="evidencePanel" class="panel content-panel hidden"><div class="section-heading"><div><span class="eyebrow">SOURCE TRACEABILITY</span><h2>Project evidence library</h2><p class="muted">Synthetic reports and illustrative procedure used by the demonstration.</p></div><span class="count-pill" id="evidenceCount">0 sources</span></div><div id="evidenceList" class="data-list"></div></section>
+        <section id="auditPanel" class="panel content-panel hidden"><div class="section-heading"><div><span class="eyebrow">SECURITY & TRACEABILITY</span><h2>Access &amp; audit history</h2><p class="muted">Recent authentication and construction-tool operations.</p></div></div><div id="auditList" class="data-list"></div></section>
       </section>
     </main>
   </div>
   <div id="toast" class="toast hidden"></div>
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=3.0.0"></script>
 </body>
 </html>

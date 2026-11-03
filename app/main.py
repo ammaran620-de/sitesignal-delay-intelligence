@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -22,6 +23,9 @@ from app.db import connection, init_db, write_audit
 from app.passwords import verify_password
 from app.security import create_session, get_current_user, revoke_session
 from app.tools import get_audit_logs
+
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
@@ -69,6 +73,7 @@ def health() -> dict[str, Any]:
         "service": "sitesignal",
         "gemini_configured": bool(GEMINI_API_KEY),
         "gemini_model": GEMINI_MODEL,
+        "gemini_api": "generate_content",
         "construction_rag_ready": evidence.get("ready", False),
         "construction_rag_chunks": evidence.get("chunks", 0),
     }
@@ -168,13 +173,20 @@ async def chat(request: ChatRequest, user: dict[str, Any] = Depends(get_current_
     try:
         return await run_in_threadpool(run_agent, request.message, user)
     except Exception as exc:
+        logger.exception(
+            "Gemini chat failed user_id=%s role=%s model=%s",
+            user.get("id"), user.get("role"), GEMINI_MODEL,
+        )
         message = str(exc).lower()
-        if "429" in message or "quota" in message or "rate" in message:
+        code = getattr(exc, "status_code", None) or getattr(exc, "code", None)
+        if code == 429 or "429" in message or "quota" in message or "rate" in message:
             detail = "Gemini API quota/rate limit reached. Check AI Studio usage and retry later."
-        elif "api key" in message or "unauthorized" in message or "permission" in message:
+        elif code in (400, 404) or "invalid_argument" in message or "not found" in message:
+            detail = "Gemini rejected the model or request format. The technical error is printed in the server terminal."
+        elif code in (401, 403) or "api key" in message or "unauthorized" in message or "permission" in message:
             detail = "Gemini rejected the API request. Check the local key and selected model access."
         else:
-            detail = "The Gemini agent request failed. Check the server terminal for the technical error."
+            detail = "The Gemini agent request failed. The technical traceback is printed in the server terminal."
         raise HTTPException(status_code=502, detail=detail) from exc
 
 

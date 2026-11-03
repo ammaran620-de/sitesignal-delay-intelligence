@@ -61,7 +61,19 @@ async function loadOverview() {
   $("statDelay").textContent = `+${data.metrics.completion_delay_days} days`;
   $("statEvidence").textContent = data.metrics.evidence_files_available;
   $("statEvents").textContent = `${data.metrics.delay_events} linked delay events`;
-  $("modelStatus").textContent = !health.gemini_configured ? "Gemini key missing" : (health.construction_rag_ready ? `Gemini · RAG ready (${health.construction_rag_chunks} chunks)` : "Gemini ready · index evidence first");
+  $("modelStatus").textContent = !health.gemini_configured
+    ? "API key not configured"
+    : (health.construction_rag_ready
+      ? `API configured · ${health.construction_rag_chunks} RAG chunks indexed`
+      : "API configured · RAG index pending");
+  const agentBadge = $("agentStatusBadge");
+  if (agentBadge) {
+    const label = !health.gemini_configured
+      ? "SETUP REQUIRED"
+      : (health.construction_rag_ready ? "CONFIGURED · LIVE TEST AVAILABLE" : "INDEX REQUIRED");
+    agentBadge.innerHTML = `<i></i> ${label}`;
+    agentBadge.classList.toggle("needs-setup", !health.gemini_configured || !health.construction_rag_ready);
+  }
   renderSchedule(data);
 }
 
@@ -352,7 +364,7 @@ async function runGuidedDemo() {
     showToast(`Guided demo stopped: ${error.message}`, true);
   } finally {
     button.disabled = false;
-    button.innerHTML = 'Run guided demo <span>→</span>';
+    button.innerHTML = 'Run full walkthrough <span>→</span>';
   }
 }
 
@@ -379,7 +391,7 @@ async function showPanel(panel) {
   const panels = { demo: "demoPanel", assistant: "assistantPanel", schedule: "schedulePanel", evidence: "evidencePanel", audit: "auditPanel" };
   for (const [key, id] of Object.entries(panels)) $(id).classList.toggle("hidden", key !== panel);
   document.querySelectorAll(".nav-item").forEach(el => el.classList.toggle("active", el.dataset.panel === panel));
-  const titles = { demo: "Guided demo", assistant: "AI investigation", schedule: "Schedule analysis", evidence: "Evidence register", audit: "Audit trail" };
+  const titles = { demo: "Overview & walkthrough", assistant: "AI investigator", schedule: "Schedule & recovery", evidence: "Evidence library", audit: "Security & audit" };
   $("pageTitle").textContent = titles[panel];
   try {
     if (panel === "schedule" && !cachedOverview) await loadOverview();
