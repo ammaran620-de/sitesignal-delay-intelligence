@@ -1,0 +1,34 @@
+SITESIGNAL - WINDOWS UPDATE INSTRUCTIONS
+
+This archive contains the complete merged project source. It does NOT contain your .env, API key, .venv, local databases, or local ChromaDB files.
+
+1. Download this ZIP to your Windows Downloads folder.
+2. In VS Code, open the existing project root (the folder that contains app, data, tests, requirements.txt and .env).
+3. Open the VS Code PowerShell terminal. Confirm the path ends with:
+   ...\escalo-agentic-operations-copilot\escalo-agentic-operations-copilot
+4. With the existing .venv active, run this ONE command:
+   Expand-Archive -LiteralPath "$env:USERPROFILE\Downloads\SiteSignal_Ready_With_Demo.zip" -DestinationPath . -Force
+5. Run:
+   python -m pytest -q
+6. Run construction evidence indexing (this uses Gemini API quota):
+   python -m app.ingest_construction
+7. Run the app:
+   uvicorn app.main:app --reload
+8. Open http://127.0.0.1:8000
+9. Sign in as manager / Manager@123. The Guided demo is the first screen.
+10. Click Run guided demo. When all seven checks pass, optionally click Run live Gemini investigation.
+
+Do not delete or overwrite your .env file. Do not share it or commit it to GitHub.
+
+Demo credentials:
+  manager / Manager@123
+  technician / Tech@123
+  sales / Sales@123
+
+The records and reports are synthetic. This is an independent portfolio prototype, not an Escalo product, client integration, or production-ready construction system.
+
+Verification:
+  - 20 automated Python tests pass in the packaged source.
+  - Tests do not call Gemini.
+  - The deterministic Guided demo performs seven local API checks without Gemini quota.
+  - Construction embedding ingestion and live Gemini function calling must be smoke-tested with your local API key.

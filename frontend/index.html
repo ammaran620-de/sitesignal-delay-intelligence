@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SiteSignal | Delay Cascade Intelligence</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div id="loginView" class="login-shell">
+    <div class="login-card">
+      <div class="brand-mark">SS</div>
+      <p class="eyebrow">INDEPENDENT ENGINEERING DEMO</p>
+      <h1>SiteSignal</h1>
+      <p class="muted">Delay Cascade Intelligence</p>
+      <form id="loginForm">
+        <label for="username">Demo account</label>
+        <select id="username" required>
+          <option value="manager">Project manager</option>
+          <option value="technician">Project delivery user</option>
+          <option value="sales">Restricted user (security test)</option>
+        </select>
+        <label for="password">Password</label>
+        <input id="password" type="password" value="Manager@123" autocomplete="current-password" required />
+        <button class="primary full" type="submit">Sign in to project workspace <span>→</span></button>
+        <div id="loginError" class="error-text" role="alert"></div>
+      </form>
+      <div class="demo-note"><strong>Local portfolio demo</strong><br/>All project, report and policy records are synthetic. No Escalo or client systems are connected.</div>
+    </div>
+    <div class="login-aside">
+      <div class="orb orb-one"></div><div class="orb orb-two"></div>
+      <div class="aside-content">
+        <span class="pill">DETERMINISTIC CPM · GEMINI AGENT</span>
+        <h2>Investigate the delay.<br/><em>Trace the cascade.</em></h2>
+        <p>Combine schedule mathematics, source-grounded evidence and controlled AI-assisted investigation.</p>
+        <div class="aside-points"><span>01&nbsp; Dependency graph validation</span><span>02&nbsp; Critical Path Method</span><span>03&nbsp; Evidence retrieval</span><span>04&nbsp; Schedule-only recovery simulation</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="appView" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="sidebar-brand"><div class="brand-mark small">SS</div><div><strong>SiteSignal</strong><small>Delay intelligence</small></div></div>
+      <div class="side-label">PROJECT WORKSPACE</div>
+      <button class="nav-item active" data-panel="demo"><span class="nav-icon">▶</span> Guided demo</button>
+      <button class="nav-item" data-panel="assistant"><span class="nav-icon">✳</span> AI investigation</button>
+      <button class="nav-item" data-panel="schedule"><span class="nav-icon">⌁</span> Schedule analysis</button>
+      <button class="nav-item" data-panel="evidence"><span class="nav-icon">▤</span> Evidence register</button>
+      <button class="nav-item" data-panel="audit" id="auditNav"><span class="nav-icon">◇</span> Audit trail</button>
+      <div class="sidebar-bottom"><div class="secure-status"><span class="status-dot"></span><div><strong>Access controls active</strong><small>Authenticated session</small></div></div><button id="logoutBtn" class="logout">Sign out <span>↗</span></button></div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar"><div><span class="crumb">Project</span><span class="crumb-sep">/</span><strong id="pageTitle">AI investigation</strong></div><div class="top-user"><div class="avatar" id="avatarInitials">AM</div><div><strong id="userName">Alex Morgan</strong><small id="userRole">Project manager</small></div><span class="online-dot"></span></div></header>
+      <section class="page-content">
+        <div class="welcome-row"><div><p class="eyebrow">CONSTRUCTION SCHEDULE INTELLIGENCE · SYNTHETIC SCENARIO</p><h1 id="greeting">Welcome to SiteSignal.</h1><p class="muted" id="projectName">Northgate Community Health Centre</p></div><div class="model-chip"><span class="status-dot"></span> Gemini agent <span class="chip-divider"></span><span id="modelStatus">Checking…</span></div></div>
+
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-top"><span>Baseline duration</span><span class="stat-symbol">▣</span></div><strong id="statBaseline">—</strong><small id="statBaselineDate">Original schedule</small></div>
+          <div class="stat-card"><div class="stat-top"><span>Forecast duration</span><span class="stat-symbol">◷</span></div><strong id="statForecast">—</strong><small id="statForecastDate">Event-adjusted schedule</small></div>
+          <div class="stat-card accent"><div class="stat-top"><span>Completion variance</span><span class="stat-symbol">!</span></div><strong id="statDelay">—</strong><small>Calculated from dependencies</small></div>
+          <div class="stat-card"><div class="stat-top"><span>Evidence records</span><span class="stat-symbol">▤</span></div><strong id="statEvidence">—</strong><small id="statEvents">Linked delay events</small></div>
+        </div>
+
+        <section id="demoPanel" class="panel content-panel demo-panel">
+          <div class="demo-hero">
+            <div>
+              <span class="eyebrow">RECRUITER WALKTHROUGH · 4–6 MINUTES</span>
+              <h2>See the engineering, not just the chatbot.</h2>
+              <p class="muted">A repeatable demonstration of deterministic schedule analysis, source-linked incident investigation, recovery what-if analysis and server-enforced role boundaries.</p>
+              <div class="demo-tags"><span>12 activities</span><span>2 synthetic delay events</span><span>3 evidence documents</span><span>2 security roles tested</span></div>
+            </div>
+            <div class="demo-hero-actions">
+              <button id="runGuidedDemoBtn" class="primary">Run guided demo <span>→</span></button>
+              <button id="runGeminiDemoBtn" class="secondary">Run live Gemini investigation</button>
+              <a class="demo-script-link" href="/static/demo_script.md" target="_blank" rel="noopener">Open 90-second recording script ↗</a>
+            </div>
+          </div>
+          <div class="demo-notice"><strong>Demo boundary:</strong> All project records and incident reports are synthetic. The guided run calls the local API and deterministic Python services. The Gemini test is a separate live API call and requires the construction evidence index to be ready.</div>
+          <div class="demo-status-row"><div><span class="eyebrow">WALKTHROUGH STATUS</span><strong id="demoRunStatus">Ready to run</strong></div><span id="demoRunCount" class="count-pill">0 / 7 checks</span></div>
+          <div id="demoSteps" class="demo-steps">
+            <article class="demo-step" data-demo-step="schedule"><span class="demo-step-number">01</span><div><strong>Baseline vs event-adjusted schedule</strong><p>Calculate project duration, forecast completion and critical path with deterministic CPM.</p></div><span class="demo-step-state">Not run</span></article>
+            <article class="demo-step" data-demo-step="critical"><span class="demo-step-number">02</span><div><strong>Critical-path incident EV-001</strong><p>Retrieve the structural-approval report and calculate its effect on project completion.</p></div><span class="demo-step-state">Not run</span></article>
+            <article class="demo-step" data-demo-step="float"><span class="demo-step-number">03</span><div><strong>Float absorption EV-002</strong><p>Show why a two-day foundation mobilisation delay is absorbed by available float.</p></div><span class="demo-step-state">Not run</span></article>
+            <article class="demo-step" data-demo-step="evidence"><span class="demo-step-number">04</span><div><strong>Evidence register</strong><p>Confirm that reports and the illustrative procedure are available with source filenames.</p></div><span class="demo-step-state">Not run</span></article>
+            <article class="demo-step" data-demo-step="recovery"><span class="demo-step-number">05</span><div><strong>Recovery what-if</strong><p>Run REC-001 and inspect the calculated one-day recovery and feasibility warning.</p></div><span class="demo-step-state">Not run</span></article>
+            <article class="demo-step" data-demo-step="technician"><span class="demo-step-number">06</span><div><strong>Technician permission boundary</strong><p>Verify that a project-delivery user can read the schedule but cannot run manager-only recovery.</p></div><span class="demo-step-state">Not run</span></article>
+            <article class="demo-step" data-demo-step="sales"><span class="demo-step-number">07</span><div><strong>Restricted-user boundary</strong><p>Verify that the sales role receives HTTP 403 when requesting construction data.</p></div><span class="demo-step-state">Not run</span></article>
+          </div>
+          <div class="demo-results-wrap">
+            <div class="rail-heading"><h3>Live results</h3><span class="rail-icon">✓</span></div>
+            <div id="demoResults" class="demo-results"><div class="empty-list">Run the guided demo to populate real API results here.</div></div>
+          </div>
+          <div class="demo-bottom-actions">
+            <button id="resetGuidedDemoBtn" class="secondary">Reset walkthrough</button>
+            <button id="openAuditFromDemoBtn" class="secondary">Review audit trail</button>
+          </div>
+        </section>
+
+        <section id="assistantPanel" class="panel assistant-layout hidden">
+          <div class="chat-card">
+            <div class="card-heading"><div><span class="eyebrow">EVIDENCE-GROUNDED INVESTIGATION</span><h2>Ask SiteSignal</h2></div><span class="live-badge"><i></i> READY</span></div>
+            <div id="chatMessages" class="chat-messages">
+              <div class="message assistant-message"><div class="bot-avatar">SS</div><div class="bubble-wrap"><span class="message-label">SITESIGNAL · GEMINI</span><div class="bubble">I can calculate the project schedule, investigate a delay event against its evidence record, retrieve the demonstration procedure and simulate a predefined recovery scenario. All project data is synthetic.</div></div></div>
+            </div>
+            <div class="suggestions">
+              <button class="suggestion" data-prompt="Analyze the complete schedule. Identify the critical path, baseline completion, event-adjusted completion and total float for non-critical activities.">Analyze schedule <span>↗</span></button>
+              <button class="suggestion" data-prompt="Investigate EV-001. Separate recorded facts, calculated downstream impact, assumptions and unknowns. Cite the source filename.">Investigate EV-001 <span>↗</span></button>
+              <button class="suggestion" data-prompt="Compare the structural approval delay with the site mobilisation delay. Why does one affect completion while the other is absorbed by float? Cite evidence.">Compare delay events <span>↗</span></button>
+              <button class="suggestion" data-prompt="Run recovery scenario REC-001. Explain the schedule-only result and all feasibility limitations.">Simulate recovery <span>↗</span></button>
+            </div>
+            <form id="chatForm" class="composer"><textarea id="chatInput" rows="1" placeholder="Investigate an event, schedule impact or recovery scenario…" maxlength="2000"></textarea><button id="sendBtn" class="send-btn" type="submit" aria-label="Send message">↑</button></form>
+            <div class="composer-foot"><span>Verify source evidence and assumptions before operational decisions.</span><span>ENTER TO SEND · SHIFT + ENTER FOR NEW LINE</span></div>
+          </div>
+          <aside class="right-rail">
+            <div class="rail-card"><div class="rail-heading"><h3>Agent execution</h3><span class="rail-icon">⌘</span></div><p class="muted small-copy">Tool calls made during the latest investigation.</p><div id="toolEvents" class="tool-events empty-state">No tools executed yet.</div></div>
+            <div class="rail-card"><div class="rail-heading"><h3>Engineering controls</h3><span class="shield">✓</span></div><div class="security-list"><div><span class="check">✓</span><span><strong>Deterministic CPM</strong><small>LLM does not calculate schedule dates</small></span></div><div><span class="check">✓</span><span><strong>Evidence provenance</strong><small>Source filenames retained</small></span></div><div><span class="check">✓</span><span><strong>Role restrictions</strong><small>Manager / project delivery roles</small></span></div><div><span class="check">✓</span><span><strong>Auditable operations</strong><small>Read and simulation events recorded</small></span></div></div></div>
+            <div class="disclaimer">INDEPENDENT PORTFOLIO PROTOTYPE<br/>Synthetic schedule · No real client or Escalo data.</div>
+          </aside>
+        </section>
+
+        <section id="schedulePanel" class="panel content-panel hidden">
+          <div class="section-heading"><div><span class="eyebrow">DETERMINISTIC SCHEDULE ENGINE</span><h2>Critical path & delay propagation</h2><p class="muted">Calendar-day, finish-to-start CPM. Resource levelling and working calendars are not modelled.</p></div><span class="count-pill" id="criticalPathCount">—</span></div>
+          <div class="schedule-callout" id="scheduleSummary">Loading schedule…</div>
+          <div class="table-wrap"><table><thead><tr><th>ID</th><th>Activity</th><th>Duration</th><th>Float</th><th>Critical</th><th>Baseline start</th></tr></thead><tbody id="activityRows"></tbody></table></div>
+          <div class="recovery-box"><div><span class="eyebrow">WHAT-IF ANALYSIS</span><h3>Recovery scenario REC-001</h3><p class="muted">Expedite procurement by one day. This only changes the modelled duration and does not approve a real schedule change.</p><div id="recoveryResult" class="muted small-copy">Run the scenario to view calculated impact.</div></div><button id="simulateBtn" class="primary">Simulate recovery</button></div>
+        </section>
+
+        <section id="evidencePanel" class="panel content-panel hidden"><div class="section-heading"><div><span class="eyebrow">SOURCE TRACEABILITY</span><h2>Evidence register</h2><p class="muted">Synthetic reports and illustrative procedure used by the demonstration.</p></div><span class="count-pill" id="evidenceCount">0 sources</span></div><div id="evidenceList" class="data-list"></div></section>
+        <section id="auditPanel" class="panel content-panel hidden"><div class="section-heading"><div><span class="eyebrow">SECURITY & TRACEABILITY</span><h2>Audit trail</h2><p class="muted">Recent authentication and construction-tool operations.</p></div></div><div id="auditList" class="data-list"></div></section>
+      </section>
+    </main>
+  </div>
+  <div id="toast" class="toast hidden"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+{
+  "project": {
+    "id": "SS-DEMO-001",
+    "name": "Northgate Community Health Centre",
+    "description": "Synthetic programme for testing evidence-backed delay investigation, dependency propagation and schedule-only recovery scenarios.",
+    "data_status": "SYNTHETIC_DEMO_DATA",
+    "project_start_date": "2026-11-02",
+    "schedule_version": "baseline-v1.0",
+    "calendar": {
+      "duration_unit": "calendar_days",
+      "working_weekends": true,
+      "holidays_excluded": false,
+      "relationship_type": "finish_to_start",
+      "notes": [
+        "All activity durations are illustrative calendar days.",
+        "The current engine does not model working calendars, public holidays, resource constraints, or resource levelling.",
+        "The project schedule is a synthetic test scenario, not a real construction programme."
+      ]
+    }
+  },
+  "activities": [
+    {
+      "id": "A",
+      "name": "Permits and site access",
+      "duration_days": 3,
+      "predecessors": [],
+      "owner_role": "Project Manager",
+      "work_package": "Pre-construction"
+    },
+    {
+      "id": "B",
+      "name": "Structural design approval",
+      "duration_days": 2,
+      "predecessors": [
+        "A"
+      ],
+      "owner_role": "Client Approvals Lead",
+      "work_package": "Design and approvals"
+    },
+    {
+      "id": "C",
+      "name": "Order structural materials",
+      "duration_days": 5,
+      "predecessors": [
+        "B"
+      ],
+      "owner_role": "Procurement Manager",
+      "work_package": "Procurement"
+    },
+    {
+      "id": "D",
+      "name": "Prepare site work area for foundation activities",
+      "duration_days": 4,
+      "predecessors": [
+        "A"
+      ],
+      "owner_role": "Site Manager",
+      "work_package": "Site preparation"
+    },
+    {
+      "id": "E",
+      "name": "Deliver structural materials to site",
+      "duration_days": 3,
+      "predecessors": [
+        "C"
+      ],
+      "owner_role": "Logistics Coordinator",
+      "work_package": "Procurement"
+    },
+    {
+      "id": "F",
+      "name": "Complete ground works",
+      "duration_days": 4,
+      "predecessors": [
+        "D",
+        "E"
+      ],
+      "owner_role": "Civil Works Supervisor",
+      "work_package": "Civil works"
+    },
+    {
+      "id": "G",
+      "name": "Construct structural frame",
+      "duration_days": 5,
+      "predecessors": [
+        "F"
+      ],
+      "owner_role": "Construction Manager",
+      "work_package": "Structure"
+    },
+    {
+      "id": "H",
+      "name": "Complete electrical first fix",
+      "duration_days": 3,
+      "predecessors": [
+        "G"
+      ],
+      "owner_role": "Electrical Supervisor",
+      "work_package": "Building services"
+    },
+    {
+      "id": "I",
+      "name": "Complete building inspection",
+      "duration_days": 2,
+      "predecessors": [
+        "H"
+      ],
+      "owner_role": "Quality and Compliance Lead",
+      "work_package": "Inspection"
+    },
+    {
+      "id": "J",
+      "name": "Complete internal finishes",
+      "duration_days": 5,
+      "predecessors": [
+        "I"
+      ],
+      "owner_role": "Finishing Contractor",
+      "work_package": "Finishes"
+    },
+    {
+      "id": "K",
+      "name": "Complete external landscaping",
+      "duration_days": 3,
+      "predecessors": [
+        "F"
+      ],
+      "owner_role": "External Works Supervisor",
+      "work_package": "External works"
+    },
+    {
+      "id": "L",
+      "name": "Final handover",
+      "duration_days": 1,
+      "predecessors": [
+        "J",
+        "K"
+      ],
+      "owner_role": "Project Manager",
+      "work_package": "Close-out"
+    }
+  ],
+  "delay_events": [
+    {
+      "id": "EV-001",
+      "activity_id": "B",
+      "delay_days": 2,
+      "summary": "Structural design approval was recorded two calendar days after its baseline finish date.",
+      "evidence_source": "site_report_001.md",
+      "reported_by": "Design Coordinator",
+      "event_date": "2026-11-09",
+      "status": "verified_for_demo"
+    },
+    {
+      "id": "EV-002",
+      "activity_id": "D",
+      "delay_days": 2,
+      "summary": "The site preparation crew mobilized two calendar days after the baseline early-start date.",
+      "evidence_source": "site_report_002.md",
+      "reported_by": "Site Manager",
+      "event_date": "2026-11-07",
+      "status": "verified_for_demo"
+    }
+  ],
+  "recovery_scenarios": [
+    {
+      "id": "REC-001",
+      "name": "Expedite structural material procurement",
+      "duration_reductions": {
+        "C": 1
+      },
+      "assumption": "The procurement activity can be completed one calendar day faster. This is a schedule-only assumption and does not confirm supplier capacity, extra cost, or delivery feasibility."
+    }
+  ]
+}
