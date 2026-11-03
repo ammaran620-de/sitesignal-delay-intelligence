@@ -21,7 +21,7 @@
           <option value="sales">Restricted user (security test)</option>
         </select>
         <label for="password">Password</label>
-        <input id="password" type="password" value="Manager@123" autocomplete="current-password" required />
+        <input id="password" type="password" autocomplete="current-password" required />
         <button class="primary full" type="submit">Sign in to project workspace <span>→</span></button>
         <div id="loginError" class="error-text" role="alert"></div>
       </form>
@@ -53,7 +53,7 @@
     <main class="main-area">
       <header class="topbar"><div><span class="crumb">Project</span><span class="crumb-sep">/</span><strong id="pageTitle">Overview &amp; walkthrough</strong><span class="ui-version-pill">RECRUITER EDITION · V3</span></div><div class="top-user"><div class="avatar" id="avatarInitials">AM</div><div><strong id="userName">Alex Morgan</strong><small id="userRole">Project manager</small></div><span class="online-dot"></span></div></header>
       <section class="page-content">
-        <div class="welcome-row"><div><p class="eyebrow">PROJECT CONTROLS / CONSTRUCTION INTELLIGENCE / PORTFOLIO PROTOTYPE</p><h1 id="greeting">SiteSignal operations overview.</h1><p class="muted" id="projectName">Northgate Community Health Centre</p></div><div class="model-chip"><span class="status-dot"></span> Gemini agent <span class="chip-divider"></span><span id="modelStatus">Checking…</span></div></div>
+        <div class="welcome-row" id="welcomeRow"><div><p class="eyebrow">PROJECT CONTROLS / CONSTRUCTION INTELLIGENCE / PORTFOLIO PROTOTYPE</p><h1 id="greeting">SiteSignal operations overview.</h1><p class="muted" id="projectName">Northgate Community Health Centre</p></div><div class="model-chip"><span class="status-dot"></span> Gemini agent <span class="chip-divider"></span><span id="modelStatus">Checking…</span></div></div>
 
         <div class="stats-grid">
           <div class="stat-card"><div class="stat-top"><span>Baseline duration</span><span class="stat-symbol">01</span></div><strong id="statBaseline">—</strong><small id="statBaselineDate">Original schedule</small></div>
@@ -74,7 +74,7 @@
             <div>
               <span class="eyebrow">PRODUCT WALKTHROUGH / 4–6 MINUTES</span>
               <h2>From site incident to schedule impact.</h2>
-              <p class="muted">A guided view of the complete workflow: calculate the schedule, investigate reported events, inspect source evidence, model a recovery option and verify access boundaries.</p>
+              <p class="muted">A guided view of the workflow: calculate the schedule, investigate reported events, inspect source evidence and model a recovery option. Role boundaries are verified separately with dedicated accounts.</p>
               <div class="demo-tags"><span>12 schedule activities</span><span>2 delay scenarios</span><span>3 synthetic evidence files</span><span>Role-based access checks</span></div>
             </div>
             <div class="demo-hero-actions">
@@ -84,15 +84,15 @@
             </div>
           </div>
           <div class="demo-notice"><strong>Demo boundary:</strong> All project records and incident reports are synthetic. The guided run calls the local API and deterministic Python services. The Gemini test is a separate live API call and requires the construction evidence index to be ready.</div>
-          <div class="demo-status-row"><div><span class="eyebrow">WALKTHROUGH STATUS</span><strong id="demoRunStatus">Ready to run</strong></div><span id="demoRunCount" class="count-pill">0 / 7 checks</span></div>
+          <div class="demo-status-row"><div><span class="eyebrow">WALKTHROUGH STATUS</span><strong id="demoRunStatus">Ready to run</strong></div><span id="demoRunCount" class="count-pill">0 / 5 automated checks</span></div>
           <div id="demoSteps" class="demo-steps">
             <article class="demo-step" data-demo-step="schedule"><span class="demo-step-number">01</span><div><strong>Baseline vs event-adjusted schedule</strong><p>Calculate project duration, forecast completion and critical path with deterministic CPM.</p></div><span class="demo-step-state">Not run</span></article>
             <article class="demo-step" data-demo-step="critical"><span class="demo-step-number">02</span><div><strong>Critical-path incident EV-001</strong><p>Retrieve the structural-approval report and calculate its effect on project completion.</p></div><span class="demo-step-state">Not run</span></article>
             <article class="demo-step" data-demo-step="float"><span class="demo-step-number">03</span><div><strong>Float absorption EV-002</strong><p>Show why a two-day foundation mobilisation delay is absorbed by available float.</p></div><span class="demo-step-state">Not run</span></article>
             <article class="demo-step" data-demo-step="evidence"><span class="demo-step-number">04</span><div><strong>Evidence register</strong><p>Confirm that reports and the illustrative procedure are available with source filenames.</p></div><span class="demo-step-state">Not run</span></article>
             <article class="demo-step" data-demo-step="recovery"><span class="demo-step-number">05</span><div><strong>Recovery what-if</strong><p>Run REC-001 and inspect the calculated one-day recovery and feasibility warning.</p></div><span class="demo-step-state">Not run</span></article>
-            <article class="demo-step" data-demo-step="technician"><span class="demo-step-number">06</span><div><strong>Technician permission boundary</strong><p>Verify that a project-delivery user can read the schedule but cannot run manager-only recovery.</p></div><span class="demo-step-state">Not run</span></article>
-            <article class="demo-step" data-demo-step="sales"><span class="demo-step-number">07</span><div><strong>Restricted-user boundary</strong><p>Verify that the sales role receives HTTP 403 when requesting construction data.</p></div><span class="demo-step-state">Not run</span></article>
+            <article class="demo-step" data-demo-step="technician"><span class="demo-step-number">06</span><div><strong>Technician permission boundary</strong><p>Manual sign-in: verify schedule read access and manager-only recovery denial.</p></div><span class="demo-step-state">Not run</span></article>
+            <article class="demo-step" data-demo-step="sales"><span class="demo-step-number">07</span><div><strong>Restricted-user boundary</strong><p>Manual sign-in: verify that the restricted role cannot access construction data.</p></div><span class="demo-step-state">Not run</span></article>
           </div>
           <div class="demo-results-wrap">
             <div class="rail-heading"><h3>Live results</h3><span class="rail-icon">✓</span></div>
@@ -134,6 +134,20 @@
         </section>
 
         <section id="evidencePanel" class="panel content-panel hidden"><div class="section-heading"><div><span class="eyebrow">SOURCE TRACEABILITY</span><h2>Project evidence library</h2><p class="muted">Synthetic reports and illustrative procedure used by the demonstration.</p></div><span class="count-pill" id="evidenceCount">0 sources</span></div><div id="evidenceList" class="data-list"></div></section>
+        <section id="restrictedAccessPanel" class="panel content-panel hidden">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">ROLE-BASED ACCESS CONTROL</span>
+              <h2>Construction workspace restricted</h2>
+              <p class="muted">Your account is authenticated, but this role is not authorized to access construction project data.</p>
+            </div>
+            <span class="count-pill">HTTP 403 boundary</span>
+          </div>
+          <div class="schedule-callout">
+            This is the intended restricted-user experience. SiteSignal enforces authorization on the backend; hiding interface elements is not the security control. Sign out to test another demo role.
+          </div>
+          <button id="restrictedLogoutBtn" class="secondary" type="button">Sign out</button>
+        </section>
         <section id="auditPanel" class="panel content-panel hidden"><div class="section-heading"><div><span class="eyebrow">SECURITY & TRACEABILITY</span><h2>Access &amp; audit history</h2><p class="muted">Recent authentication and construction-tool operations.</p></div></div><div id="auditList" class="data-list"></div></section>
       </section>
     </main>

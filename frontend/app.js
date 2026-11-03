@@ -22,6 +22,116 @@ async function api(path, options = {}) {
   return body;
 }
 
+function appendInlineMarkdown(parent, source) {
+  // Render a deliberately small Markdown subset using DOM nodes only.
+  // Model output is never assigned to innerHTML, preventing HTML/script injection.
+  const pattern = /(\*\*[^*]+\*\*|`[^`]+`|\*[^*\n]+\*)/g;
+  let cursor = 0;
+  let match;
+
+  while ((match = pattern.exec(source)) !== null) {
+    if (match.index > cursor) {
+      parent.appendChild(document.createTextNode(source.slice(cursor, match.index)));
+    }
+
+    const token = match[0];
+    let node;
+    if (token.startsWith("**")) {
+      node = document.createElement("strong");
+      node.textContent = token.slice(2, -2);
+    } else if (token.startsWith("`")) {
+      node = document.createElement("code");
+      node.textContent = token.slice(1, -1);
+    } else {
+      node = document.createElement("em");
+      node.textContent = token.slice(1, -1);
+    }
+    parent.appendChild(node);
+    cursor = pattern.lastIndex;
+  }
+
+  if (cursor < source.length) {
+    parent.appendChild(document.createTextNode(source.slice(cursor)));
+  }
+}
+
+function renderMarkdown(container, markdown) {
+  const lines = String(markdown || "")
+    .replace(/\\([#*_`])/g, "$1")
+    .split(/\r?\n/);
+
+  let paragraph = [];
+  let list = null;
+  let listType = null;
+
+  const flushParagraph = () => {
+    if (!paragraph.length) return;
+    const p = document.createElement("p");
+    paragraph.forEach((line, index) => {
+      if (index) p.appendChild(document.createElement("br"));
+      appendInlineMarkdown(p, line);
+    });
+    container.appendChild(p);
+    paragraph = [];
+  };
+
+  const flushList = () => {
+    if (list) container.appendChild(list);
+    list = null;
+    listType = null;
+  };
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+
+    if (!line) {
+      flushParagraph();
+      flushList();
+      continue;
+    }
+
+    const heading = line.match(/^(#{1,4})\s+(.+)$/);
+    if (heading) {
+      flushParagraph();
+      flushList();
+      const level = Math.min(heading[1].length + 1, 6);
+      const node = document.createElement(`h${level}`);
+      appendInlineMarkdown(node, heading[2]);
+      container.appendChild(node);
+      continue;
+    }
+
+    if (/^---+$/.test(line)) {
+      flushParagraph();
+      flushList();
+      container.appendChild(document.createElement("hr"));
+      continue;
+    }
+
+    const bullet = line.match(/^[-*]\s+(.+)$/);
+    const numbered = line.match(/^\d+[.)]\s+(.+)$/);
+    if (bullet || numbered) {
+      flushParagraph();
+      const nextType = bullet ? "ul" : "ol";
+      if (!list || listType !== nextType) {
+        flushList();
+        list = document.createElement(nextType);
+        listType = nextType;
+      }
+      const item = document.createElement("li");
+      appendInlineMarkdown(item, (bullet || numbered)[1]);
+      list.appendChild(item);
+      continue;
+    }
+
+    flushList();
+    paragraph.push(line);
+  }
+
+  flushParagraph();
+  flushList();
+}
+
 function addMessage(text, role = "assistant") {
   const container = $("chatMessages");
   const outer = document.createElement("div");
@@ -36,7 +146,7 @@ function addMessage(text, role = "assistant") {
   label.textContent = role === "user" ? "YOU" : "SITESIGNAL · GEMINI";
   const bubble = document.createElement("div");
   bubble.className = "bubble";
-  bubble.textContent = text;
+  renderMarkdown(bubble, text);
   wrap.append(label, bubble);
   outer.append(avatar, wrap);
   container.appendChild(outer);
@@ -209,7 +319,7 @@ async function loadAudit() {
   }
 }
 
-const DEMO_CHECKS = ["schedule", "critical", "float", "evidence", "recovery", "technician", "sales"];
+const DEMO_CHECKS = ["schedule", "critical", "float", "evidence", "recovery"];
 
 function setDemoStep(step, state, label) {
   const card = document.querySelector(`[data-demo-step="${step}"]`);
@@ -239,53 +349,41 @@ function addDemoResult(title, detail, ok = true) {
   container.appendChild(card);
 }
 
+function addDemoNote(title, detail) {
+  const container = $("demoResults");
+  if (container.querySelector(".empty-list")) container.replaceChildren();
+
+  const card = document.createElement("article");
+  card.className = "demo-result";
+  const top = document.createElement("div");
+  top.className = "demo-result-top";
+
+  const heading = document.createElement("strong");
+  heading.textContent = title;
+
+  const state = document.createElement("span");
+  state.textContent = "MANUAL";
+  state.style.color = "#8a6d32";
+
+  const body = document.createElement("p");
+  body.textContent = detail;
+
+  top.append(heading, state);
+  card.append(top, body);
+  container.appendChild(card);
+}
+
 function updateDemoCount(passed) {
-  $("demoRunCount").textContent = `${passed} / ${DEMO_CHECKS.length} checks`;
+  $("demoRunCount").textContent = `${passed} / ${DEMO_CHECKS.length} automated checks`;
 }
 
 function resetGuidedDemo() {
   DEMO_CHECKS.forEach(step => setDemoStep(step, "", "Not run"));
+  setDemoStep("technician", "", "Manual sign-in");
+  setDemoStep("sales", "", "Manual sign-in");
   $("demoRunStatus").textContent = "Ready to run";
   updateDemoCount(0);
-  $("demoResults").innerHTML = '<div class="empty-list">Run the guided demo to populate real API results here.</div>';
-}
-
-async function runRoleBoundaryChecks() {
-  const checks = [];
-  const techLoginResponse = await fetch("/api/login", {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username: "technician", password: "Tech@123" })
-  });
-  if (!techLoginResponse.ok) throw new Error("Could not create technician demo session.");
-  const techLogin = await techLoginResponse.json();
-  const techHeaders = { Authorization: `Bearer ${techLogin.access_token}` };
-  const techRead = await fetch("/api/construction/overview", { headers: techHeaders });
-  const techRecovery = await fetch("/api/construction/recovery/REC-001", { method: "POST", headers: techHeaders });
-  checks.push({
-    role: "Technician",
-    readStatus: techRead.status,
-    recoveryStatus: techRecovery.status,
-    ok: techRead.status === 200 && techRecovery.status === 403,
-    detail: `Schedule read: HTTP ${techRead.status}; manager-only recovery: HTTP ${techRecovery.status}. Expected 200 and 403.`
-  });
-  await fetch("/api/logout", { method: "POST", headers: techHeaders });
-
-  const salesLoginResponse = await fetch("/api/login", {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username: "sales", password: "Sales@123" })
-  });
-  if (!salesLoginResponse.ok) throw new Error("Could not create restricted-user demo session.");
-  const salesLogin = await salesLoginResponse.json();
-  const salesHeaders = { Authorization: `Bearer ${salesLogin.access_token}` };
-  const salesRead = await fetch("/api/construction/overview", { headers: salesHeaders });
-  checks.push({
-    role: "Sales",
-    readStatus: salesRead.status,
-    ok: salesRead.status === 403,
-    detail: `Construction schedule access: HTTP ${salesRead.status}. Expected 403.`
-  });
-  await fetch("/api/logout", { method: "POST", headers: salesHeaders });
-  return checks;
+  $("demoResults").innerHTML = '<div class="empty-list">Run the guided demo to populate live API results. Role boundaries require separate manual sign-ins.</div>';
 }
 
 async function runGuidedDemo() {
@@ -341,24 +439,21 @@ async function runGuidedDemo() {
       () => api("/api/construction/recovery/REC-001", { method: "POST" }),
       data => `Delayed schedule: ${data.simulation.delayed_duration_days} days. Recovered schedule: ${data.simulation.recovered_duration_days} days. Improvement: ${data.simulation.days_recovered_vs_delayed_schedule} day(s). Approval required: ${data.approval_required}. ${data.simulation.feasibility_warning}`
     );
-    const roleChecks = await runRoleBoundaryChecks();
-    const tech = roleChecks[0];
-    await execute(
-      "technician", "6 · Technician permission boundary",
-      async () => tech,
-      data => data.detail
+    setDemoStep("technician", "", "Manual sign-in");
+    addDemoNote(
+      "6 · Technician permission boundary",
+      "Manual verification: sign out, sign in as technician, confirm schedule access, then confirm recovery simulation is denied. The browser walkthrough does not embed or reuse account passwords."
     );
-    const sales = roleChecks[1];
-    await execute(
-      "sales", "7 · Restricted-user boundary",
-      async () => sales,
-      data => data.detail
+    setDemoStep("sales", "", "Manual sign-in");
+    addDemoNote(
+      "7 · Restricted-user boundary",
+      "Manual verification: sign out, sign in as sales, and confirm construction project data is denied. The browser walkthrough does not embed or reuse account passwords."
     );
     const allPassed = passed === DEMO_CHECKS.length;
-    $("demoRunStatus").textContent = allPassed ? "All guided checks passed" : "Walkthrough completed with issues";
-    addDemoResult("Walkthrough summary", `${passed}/${DEMO_CHECKS.length} checks passed. Results came from live local API calls. No approved baseline or real project data was changed.`, allPassed);
+    $("demoRunStatus").textContent = allPassed ? "Automated checks passed · role checks manual" : "Walkthrough completed with issues";
+    addDemoResult("Walkthrough summary", `${passed}/${DEMO_CHECKS.length} automated API checks passed. Two role-boundary checks are marked for separate manual sign-in. No approved baseline or real project data was changed.`, allPassed);
     if (currentUser.role === "manager") await loadAudit();
-    showToast(allPassed ? "Guided demo completed: all 7 checks passed." : "Guided demo completed with failed checks.", !allPassed);
+    showToast(allPassed ? "Guided demo completed: all 5 automated checks passed. Role checks remain manual." : "Guided demo completed with failed checks.", !allPassed);
   } catch (error) {
     $("demoRunStatus").textContent = `Stopped: ${error.message}`;
     showToast(`Guided demo stopped: ${error.message}`, true);
@@ -411,17 +506,23 @@ async function enterWorkspace(loginResult) {
   $("greeting").textContent = `Welcome, ${currentUser.full_name.split(" ")[0]}.`;
   $("auditNav").classList.toggle("hidden", currentUser.role !== "manager");
   $("simulateBtn").classList.toggle("hidden", currentUser.role !== "manager");
+  // The sales role can authenticate, but must not see project content.
+  // Protected API endpoints independently enforce HTTP 403 on this role.
+  document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("hidden"));
   if (currentUser.role === "sales") {
-    showToast("Sales role is intentionally restricted from construction project data.", true);
+    document.querySelectorAll(".nav-item").forEach(el => el.classList.add("hidden"));
+    $("auditNav").classList.add("hidden");
+    $("restrictedAccessPanel").classList.remove("hidden");
+    $("pageTitle").textContent = "Access restricted";
+    $("welcomeRow").classList.add("hidden");
+    return;
   }
+
+  $("restrictedAccessPanel").classList.add("hidden");
+  $("welcomeRow").classList.remove("hidden");
   await loadOverview();
   await showPanel("demo");
 }
-
-$("username").addEventListener("change", () => {
-  const passwords = { manager: "Manager@123", technician: "Tech@123", sales: "Sales@123" };
-  $("password").value = passwords[$("username").value] || "";
-});
 
 $("loginForm").addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -441,9 +542,41 @@ $("chatInput").addEventListener("keydown", (event) => {
 document.querySelectorAll(".suggestion").forEach(button => button.addEventListener("click", () => sendMessage(button.dataset.prompt)));
 document.querySelectorAll(".nav-item").forEach(button => button.addEventListener("click", () => showPanel(button.dataset.panel)));
 $("simulateBtn").addEventListener("click", runRecovery);
+$("restrictedLogoutBtn").addEventListener("click", () => $("logoutBtn").click());
+
 $("logoutBtn").addEventListener("click", async () => {
   try { await api("/api/logout", { method: "POST" }); } catch (_) {}
-  accessToken = null; currentUser = null; cachedOverview = null;
+  accessToken = null;
+  currentUser = null;
+  cachedOverview = null;
+
+  // Clear project-specific content so a later restricted login cannot
+  // see data left in the previous user's browser session.
+  $("password").value = "";
+  $("loginError").textContent = "";
+  $("chatInput").value = "";
+  $("chatMessages").replaceChildren();
+  $("evidenceList").replaceChildren();
+  $("auditList").replaceChildren();
+  $("activityRows").replaceChildren();
+  $("projectName").textContent = "—";
+  $("statBaseline").textContent = "—";
+  $("statBaselineDate").textContent = "Original schedule";
+  $("statForecast").textContent = "—";
+  $("statForecastDate").textContent = "Event-adjusted schedule";
+  $("statDelay").textContent = "—";
+  $("statEvidence").textContent = "—";
+  $("statEvents").textContent = "Linked delay events";
+  $("scheduleSummary").textContent = "Sign in to load project schedule.";
+  $("toolEvents").replaceChildren();
+  $("toolEvents").className = "tool-events empty-state";
+  $("toolEvents").textContent = "No tools executed yet.";
+  $("recoveryResult").textContent = "Run the scenario to view calculated impact.";
+  $("restrictedAccessPanel").classList.add("hidden");
+  $("welcomeRow").classList.remove("hidden");
+  document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("hidden"));
+  resetGuidedDemo();
+
   $("appView").classList.add("hidden");
   $("loginView").classList.remove("hidden");
 });
