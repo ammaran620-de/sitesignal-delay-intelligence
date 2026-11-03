@@ -6,12 +6,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterator
 
-from app.config import ROOT_DIR
+from app.config import DATABASE_PATH as CONFIG_DATABASE_PATH
 from app.passwords import hash_password
 
-# Use a separate SiteSignal database so the earlier dealership prototype's
-# SQLite records are not reused or exposed by the construction demo.
-DATABASE_PATH = ROOT_DIR / "data" / "sitesignal.db"
+# Keep this module-level name so tests can safely monkeypatch the database path.
+# The actual value now follows DATABASE_PATH from the environment/configuration.
+DATABASE_PATH: Path = CONFIG_DATABASE_PATH
 
 
 def get_connection() -> sqlite3.Connection:
@@ -72,7 +72,14 @@ def init_db() -> None:
             )
 
 
-def write_audit(actor_id: str, action: str, resource_type: str, resource_id: str | None, outcome: str, details: str = "") -> None:
+def write_audit(
+    actor_id: str,
+    action: str,
+    resource_type: str,
+    resource_id: str | None,
+    outcome: str,
+    details: str = "",
+) -> None:
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     with connection() as conn:
         conn.execute(

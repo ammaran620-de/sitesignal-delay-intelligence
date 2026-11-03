@@ -12,7 +12,11 @@ from starlette.concurrency import run_in_threadpool
 
 from app.agent import run_agent
 from app.config import FRONTEND_PATH, GEMINI_API_KEY, GEMINI_MODEL
-from app.construction_rag import construction_rag_status, search_construction_evidence
+from app.construction_rag import (
+    construction_rag_status,
+    ingest_construction_evidence,
+    search_construction_evidence,
+)
 from app.construction_service import (
     get_project_overview,
     investigate_delay,
@@ -29,7 +33,32 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
+    # Recreate the demo database after a free-host restart if its filesystem
+    # was reset. Demo users are seeded by init_db() when the database is empty.
     init_db()
+
+    # Render Free uses ephemeral storage. Rebuild the small synthetic RAG
+    # collection whenever it is absent after startup/redeploy/idle spin-down.
+    if GEMINI_API_KEY:
+        rag_status = construction_rag_status()
+        if not rag_status.get("ready", False):
+            try:
+                indexed = ingest_construction_evidence()
+                logger.info(
+                    "SiteSignal construction RAG initialized: %s chunks indexed",
+                    indexed,
+                )
+            except Exception:
+                # Keep the web app available even if Gemini embeddings are
+                # temporarily unavailable. /api/health reports RAG readiness.
+                logger.exception(
+                    "Construction RAG startup indexing failed; app will start without indexed evidence"
+                )
+    else:
+        logger.warning(
+            "GEMINI_API_KEY is not configured; live Gemini and RAG are unavailable"
+        )
+
     yield
 
 
@@ -169,7 +198,7 @@ def construction_search(q: str, user: dict[str, Any] = Depends(get_current_user)
 @app.post("/api/chat")
 async def chat(request: ChatRequest, user: dict[str, Any] = Depends(get_current_user)) -> dict[str, Any]:
     if not GEMINI_API_KEY:
-        raise HTTPException(status_code=503, detail="Gemini API key is not configured in the local .env file.")
+        raise HTTPException(status_code=503, detail="Gemini API key is not configured in the service environment.")
     try:
         return await run_in_threadpool(run_agent, request.message, user)
     except Exception as exc:
@@ -182,11 +211,11 @@ async def chat(request: ChatRequest, user: dict[str, Any] = Depends(get_current_
         if code == 429 or "429" in message or "quota" in message or "rate" in message:
             detail = "Gemini API quota/rate limit reached. Check AI Studio usage and retry later."
         elif code in (400, 404) or "invalid_argument" in message or "not found" in message:
-            detail = "Gemini rejected the model or request format. The technical error is printed in the server terminal."
+            detail = "Gemini rejected the model or request format. The technical error is printed in the server logs."
         elif code in (401, 403) or "api key" in message or "unauthorized" in message or "permission" in message:
-            detail = "Gemini rejected the API request. Check the local key and selected model access."
+            detail = "Gemini rejected the API request. Check the service API key and selected model access."
         else:
-            detail = "The Gemini agent request failed. The technical traceback is printed in the server terminal."
+            detail = "The Gemini agent request failed. The technical traceback is printed in the server logs."
         raise HTTPException(status_code=502, detail=detail) from exc
 
 
