@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -10,7 +11,6 @@ from app.config import DATABASE_PATH as CONFIG_DATABASE_PATH
 from app.passwords import hash_password
 
 # Keep this module-level name so tests can safely monkeypatch the database path.
-# The actual value now follows DATABASE_PATH from the environment/configuration.
 DATABASE_PATH: Path = CONFIG_DATABASE_PATH
 
 
@@ -61,10 +61,16 @@ def init_db() -> None:
             """
         )
         if conn.execute("SELECT COUNT(*) FROM users").fetchone()[0] == 0:
+            # Local defaults preserve the out-of-box development experience.
+            # On Render, set unique secret values for the manager and technician
+            # accounts in the service environment; never publish those values.
+            manager_password = os.getenv("DEMO_MANAGER_PASSWORD", "Manager@123")
+            technician_password = os.getenv("DEMO_TECHNICIAN_PASSWORD", "Tech@123")
+            sales_password = os.getenv("DEMO_SALES_PASSWORD", "Sales@123")
             users = [
-                ("manager-01", "manager", "Alex Morgan", hash_password("Manager@123"), "manager", 1, 1),
-                ("tech-01", "technician", "Jordan Lee", hash_password("Tech@123"), "technician", 1, 1),
-                ("sales-01", "sales", "Taylor Reed", hash_password("Sales@123"), "sales", 1, 1),
+                ("manager-01", "manager", "Alex Morgan", hash_password(manager_password), "manager", 1, 1),
+                ("tech-01", "technician", "Jordan Lee", hash_password(technician_password), "technician", 1, 1),
+                ("sales-01", "sales", "Taylor Reed", hash_password(sales_password), "sales", 1, 1),
             ]
             conn.executemany(
                 "INSERT INTO users(id, username, full_name, password_hash, role, branch_id, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)",

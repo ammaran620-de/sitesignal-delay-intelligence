@@ -17,6 +17,10 @@ services:
         value: gemini-embedding-001
       - key: GEMINI_EMBEDDING_DIMENSIONS
         value: "768"
+      - key: DEMO_MANAGER_PASSWORD
+        sync: false
+      - key: DEMO_TECHNICIAN_PASSWORD
+        sync: false
       - key: DATABASE_PATH
         value: /tmp/sitesignal/sitesignal.db
       - key: CHROMA_PATH
