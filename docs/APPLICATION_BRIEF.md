@@ -24,16 +24,16 @@ These results are test-data calculations, not measured savings or real project o
 
 ## Recruiter demonstration
 
-The dashboard opens on a Guided demo panel. Its one-click walkthrough calls the local API to demonstrate CPM baseline/forecast calculations, source-linked investigations of two contrasting delay events, the recovery what-if, and two server-side authorization boundaries. A separate live Gemini investigation button runs the LLM/function-calling path after the construction RAG index is configured. The deterministic walkthrough does not call Gemini or consume API quota. See `docs/DEMO_RUNBOOK.md` and `frontend/demo_script.md`.
+The dashboard opens on a Guided demo panel. Its one-click walkthrough calls the local API to demonstrate CPM baseline/forecast calculations, source-linked investigations of two contrasting delay events, the recovery what-if, and, through separate manual sign-ins as the technician and sales roles, two server-side authorization boundaries. A separate live Gemini investigation button runs the LLM/function-calling path after the construction RAG index is configured. The deterministic walkthrough does not call Gemini or consume API quota. See `docs/DEMO_RUNBOOK.md` and `frontend/demo_script.md`.
 
 ## Verification status
 
-- 20 automated Python tests pass in the packaged development environment.
+- 80 automated Python tests pass. The Gemini agent loop is tested against a scripted stand-in for the model, so no API key or network is needed.
 - JavaScript syntax check passes.
 - Python compilation checks pass.
 - Construction project JSON parses successfully.
 - FastAPI tests verify manager access, technician read-only access, manager-only recovery simulation and sales-user denial.
-- Live Gemini embedding ingestion and live Gemini function-calling must be smoke-tested with the developer's local API key before describing the end-to-end agent as live-verified.
+- Live Gemini embedding ingestion and live Gemini function-calling are not covered by the automated tests and must be smoke-tested with the developer's local API key before describing the end-to-end agent as live-verified.
 
 ## Limitations
 

@@ -22,3 +22,14 @@ DATABASE_PATH = _rooted_path("DATABASE_PATH", "data/sitesignal.db")
 CHROMA_PATH = _rooted_path("CHROMA_PATH", "data/chroma")
 POLICY_PATH = _rooted_path("POLICY_PATH", "data/policies")
 FRONTEND_PATH = ROOT_DIR / "frontend"
+
+
+_DEPLOYED_ENVIRONMENTS = {"production", "staging", "deployed"}
+
+
+def is_deployed(env=None) -> bool:
+    """True on a hosted service. Render sets RENDER; SITESIGNAL_ENV can mark any other host.
+
+    Anything else is treated as a local development machine."""
+    env = os.environ if env is None else env
+    return bool(env.get("RENDER")) or env.get("SITESIGNAL_ENV", "local").strip().lower() in _DEPLOYED_ENVIRONMENTS

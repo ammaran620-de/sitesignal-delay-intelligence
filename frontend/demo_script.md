@@ -7,8 +7,8 @@
 1. Start the app with `uvicorn app.main:app --reload`.
 2. Ensure `.env` contains the user's Gemini API key.
 3. Run `python -m app.ingest_construction` once if the construction evidence index is empty.
-4. Open `http://127.0.0.1:8000` and sign in as `manager` / `Manager@123`.
-5. Open **Guided demo** and click **Run guided demo**. Wait for all seven checks to pass.
+4. Open `http://127.0.0.1:8000` and sign in as `manager` with the password set in `DEMO_MANAGER_PASSWORD`.
+5. Open **Guided demo** and click **Run guided demo**. Wait for all five automated checks to pass. The technician and sales role checks are separate manual sign-ins.
 6. Then click **Run live Gemini investigation**. This uses the real Gemini API and consumes API quota.
 
 ## Suggested narration (about 90 seconds)
@@ -35,12 +35,12 @@
 
 **75–90 seconds — Security and close**
 
-"The guided test also verifies server-side role restrictions: a technician cannot run the manager-only recovery endpoint, and a restricted sales role cannot read construction data. The point is to combine deterministic domain logic, evidence-grounded AI orchestration and explicit authorization boundaries."
+"The role restrictions are enforced on the server: a technician cannot run the manager-only recovery endpoint, and a restricted sales role cannot read construction data. The guided demo runs as the manager, so show those two by signing in as each role. The point is to combine deterministic domain logic, evidence-grounded AI orchestration and explicit authorization boundaries."
 
 ## Recording checklist
 
 - Record the app, not the source code editor.
-- Show the guided demo results panel with all seven checks passing.
+- Show the guided demo results panel with all five automated checks passing, and state that the two role checks are done by signing in separately.
 - Show the live Gemini tool events only after the live call succeeds.
 - Show the evidence register and audit trail briefly.
 - Keep the project synthetic-data notice visible.

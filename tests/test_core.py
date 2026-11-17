@@ -7,7 +7,7 @@ from app.tools import get_audit_logs
 
 
 @pytest.fixture()
-def isolated_database(tmp_path, monkeypatch):
+def isolated_database(tmp_path, monkeypatch, demo_env):
     monkeypatch.setattr(db, "DATABASE_PATH", tmp_path / "sitesignal-test.db")
     db.init_db()
     return tmp_path / "sitesignal-test.db"

@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import logging
+import re
+from pathlib import PurePosixPath
 from typing import Any
 
 from app.config import GEMINI_API_KEY, GEMINI_MODEL
@@ -155,6 +157,64 @@ def _response_problem(response: Any) -> str:
     )
 
 
+_SOURCE_NAME = re.compile(r"[\w\-./\\]+\.md\b")
+
+
+def _returned_sources(tool_events: list[dict[str, Any]]) -> set[str]:
+    """Evidence filenames that successful tool calls in this run actually returned."""
+    found: set[str] = set()
+    for event in tool_events:
+        result = event.get("result")
+        if event.get("status") != "success" or not isinstance(result, dict):
+            continue
+        evidence = result.get("evidence")
+        if isinstance(evidence, dict) and evidence.get("source"):
+            found.add(str(evidence["source"]))
+        for match in result.get("matches") or []:
+            if isinstance(match, dict) and match.get("source"):
+                found.add(str(match["source"]))
+        for entry in result.get("evidence_registry") or []:
+            if isinstance(entry, dict) and entry.get("available") and entry.get("source"):
+                found.add(str(entry["source"]))
+    return found
+
+
+def check_citations(answer: str, tool_events: list[dict[str, Any]]) -> dict[str, list[str]]:
+    """Which Markdown source files the answer cites, and which of them no tool returned in this run.
+
+    A cited filename that no successful tool call returned cannot be traced to evidence, whether the model
+    made it up or recalled it from elsewhere, so it is reported as unsupported."""
+    available = _returned_sources(tool_events)
+    cited = sorted({PurePosixPath(m.replace("\\", "/")).name for m in _SOURCE_NAME.findall(answer or "")})
+    return {
+        "cited": cited,
+        "supported": [c for c in cited if c in available],
+        "unsupported": [c for c in cited if c not in available],
+    }
+
+
+def _execute_call(call: Any, user: dict[str, Any]) -> tuple[str, dict[str, Any], dict[str, Any]]:
+    """Run one model-requested tool call. A malformed call or a failing tool becomes an error result
+    that is handed back to the model; it never aborts the whole investigation."""
+    try:
+        name, arguments = _call_details(call)
+    except ValueError as exc:
+        inner = getattr(call, "function_call", None) or call
+        name = str(getattr(inner, "name", None) or "unknown_function")
+        logger.warning("Rejected malformed tool call name=%s", name)
+        return name, {}, {"error": f"Invalid tool call: {exc}"}
+
+    logger.info("Executing SiteSignal tool name=%s", name)
+    try:
+        result = dispatch_site_signal_tool(name, arguments, user)
+        if not isinstance(result, dict):
+            result = {"result": result}
+    except Exception as exc:
+        logger.exception("SiteSignal tool execution failed name=%s", name)
+        result = {"error": f"Tool execution failed: {type(exc).__name__}."}
+    return name, arguments, result
+
+
 def run_agent(
     message: str,
     user: dict[str, Any],
@@ -255,9 +315,18 @@ def run_agent(
                     len(tool_events),
                 )
 
+                citations = check_citations(answer, tool_events)
+                if citations["unsupported"]:
+                    answer += (
+                        "\n\nCitation check: "
+                        + ", ".join(citations["unsupported"])
+                        + " was not returned by any tool in this investigation; do not rely on it as evidence."
+                    )
+
                 return {
                     "answer": answer,
                     "tool_events": tool_events,
+                    "citations": citations,
                     "model": GEMINI_MODEL,
                 }
 
@@ -276,6 +345,7 @@ def run_agent(
                         "please narrow the request for a final analysis."
                     ),
                     "tool_events": tool_events,
+                    "citations": check_citations("", tool_events),
                     "model": GEMINI_MODEL,
                 }
 
@@ -296,35 +366,7 @@ def run_agent(
             # Execute each requested SiteSignal function.
             for call in calls:
 
-                name, arguments = _call_details(call)
-
-                logger.info(
-                    "Executing SiteSignal tool name=%s",
-                    name,
-                )
-
-                try:
-                    result = dispatch_site_signal_tool(
-                        name,
-                        arguments,
-                        user,
-                    )
-
-                    if not isinstance(result, dict):
-                        result = {"result": result}
-
-                except Exception as exc:
-                    logger.exception(
-                        "SiteSignal tool execution failed name=%s",
-                        name,
-                    )
-
-                    result = {
-                        "error": (
-                            f"Tool execution failed: "
-                            f"{type(exc).__name__}."
-                        )
-                    }
+                name, arguments, result = _execute_call(call, user)
 
                 event_status = (
                     "error" if "error" in result else "success"
