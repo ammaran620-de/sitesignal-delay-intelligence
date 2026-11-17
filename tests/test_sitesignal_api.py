@@ -1,19 +1,16 @@
 from __future__ import annotations
 
-import os
-
 from fastapi.testclient import TestClient
 
 from app import db
 from app.main import app
 
 
-def test_manager_can_read_project_and_run_recovery_but_sales_is_denied(tmp_path, monkeypatch):
-    # Use the same demo credentials that the application seeds from .env.
-    # config.load_dotenv() is called when app modules are imported.
-    manager_password = os.getenv("DEMO_MANAGER_PASSWORD", "Manager@123")
-    technician_password = os.getenv("DEMO_TECHNICIAN_PASSWORD", "Tech@123")
-    sales_password = os.getenv("DEMO_SALES_PASSWORD", "Sales@123")
+def test_manager_can_read_project_and_run_recovery_but_sales_is_denied(tmp_path, monkeypatch, demo_env):
+    # Passwords are set by the demo_env fixture (tests/conftest.py), not read from a developer's .env.
+    manager_password = demo_env["DEMO_MANAGER_PASSWORD"]
+    technician_password = demo_env["DEMO_TECHNICIAN_PASSWORD"]
+    sales_password = demo_env["DEMO_SALES_PASSWORD"]
 
     monkeypatch.setattr(db, "DATABASE_PATH", tmp_path / "sitesignal_api_test.db")
 

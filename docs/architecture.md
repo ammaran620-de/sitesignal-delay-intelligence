@@ -2,7 +2,7 @@
 
 ```text
 Browser UI
-  └── Guided demo runner (seven live local API checks; no Gemini request)
+  └── Guided demo runner (five live local API checks as the manager; no Gemini request)
   └── FastAPI (authenticated session)
        ├── GET /api/construction/overview
        │    └── construction_service
@@ -15,7 +15,7 @@ Browser UI
        ├── POST /api/construction/recovery/{id}
        │    └── manager-only, read-only what-if simulation
        └── POST /api/chat
-            └── Gemini Interactions API
+            └── Gemini Generate Content API
                  └── allow-listed function calling
                       ├── get_project_schedule
                       ├── investigate_delay_event

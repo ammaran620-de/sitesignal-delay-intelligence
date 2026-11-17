@@ -104,6 +104,7 @@ def health() -> dict[str, Any]:
         "gemini_model": GEMINI_MODEL,
         "gemini_api": "generate_content",
         "construction_rag_ready": evidence.get("ready", False),
+        "construction_rag_stale": evidence.get("stale", False),
         "construction_rag_chunks": evidence.get("chunks", 0),
     }
 

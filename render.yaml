@@ -21,6 +21,13 @@ services:
         sync: false
       - key: DEMO_TECHNICIAN_PASSWORD
         sync: false
+      # Optional. If unset, the sales account is created inactive on this service.
+      - key: DEMO_SALES_PASSWORD
+        sync: false
+      # Marks this as a hosted service: the manager and technician passwords above must be set (12+
+      # characters, not a built-in default) or the service refuses to start. Render also sets RENDER=true.
+      - key: SITESIGNAL_ENV
+        value: production
       - key: DATABASE_PATH
         value: /tmp/sitesignal/sitesignal.db
       - key: CHROMA_PATH

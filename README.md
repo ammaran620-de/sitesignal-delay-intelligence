@@ -66,13 +66,21 @@ DEMO_TECHNICIAN_PASSWORD=replace_with_a_unique_password
 DEMO_SALES_PASSWORD=replace_with_a_unique_password
 ```
 
-Set the demo passwords before the database is initialized for the first time. Keep .env private and never commit API keys or passwords to the repository.
+Set the demo passwords before the database is initialized for the first time. Keep .env private and never commit API keys or passwords to the repository. If they are unset on a local run, the app falls back to built-in development defaults and logs a warning; it never does that on a hosted service (see Security and deployment).
 
-Run the tests (20 tests):
+Index the synthetic evidence once (this calls the Gemini embeddings API and uses quota). The app also does this at startup when a key is configured and the index is missing or out of date with the evidence files:
+
+```powershell
+python -m app.ingest_construction
+```
+
+Run the tests (80 tests, no API key or network needed):
 
 ```powershell
 python -m pytest -q
 ```
+
+The tests run the Gemini tool-calling loop against a scripted stand-in for the model, and the evidence index against a real ChromaDB with fake embeddings. They check how SiteSignal handles tool calls, permissions, malformed arguments, citations and a stale index. They do not show that the live model picks good tools or writes a faithful answer; that needs a Gemini key and has to be checked by hand.
 
 Start the application and open http://127.0.0.1:8000/:
 
@@ -81,6 +89,8 @@ python -m uvicorn app.main:app --reload
 ```
 
 ## Suggested walkthrough
+
+The in-app Guided demo runs five automated checks as the manager (steps 1 to 4 and the recovery simulation below). The technician and sales role boundaries are two further checks that need a separate manual sign-in; they are also covered by the automated tests.
 
 1. Open Schedule analysis and review the baseline duration, forecast duration, critical path, and non-critical float.
 2. Investigate EV-001 and review the recorded facts, calculated impact, assumptions, unknowns, and cited source filename.
@@ -91,8 +101,11 @@ python -m uvicorn app.main:app --reload
 
 ## Security and deployment considerations
 
-- Configure unique demo passwords through environment variables before initializing the database.
-- Keep .env, API keys, and credentials out of Git, screenshots, and public documentation.
+- Local and hosted use are separate. Locally, unset demo passwords fall back to built-in development defaults. On a hosted service (`RENDER` is set, or `SITESIGNAL_ENV=production`) no default is ever used: `DEMO_MANAGER_PASSWORD` and `DEMO_TECHNICIAN_PASSWORD` must be set to values of at least 12 characters that are not a built-in default, or the service refuses to start. `DEMO_SALES_PASSWORD` is optional there; unset, the sales account is created inactive. A database carried over from a local run that still has a built-in password is also refused.
+- Set those as secrets in the hosting dashboard (`render.yaml` declares them with `sync: false`). Never commit them, and keep .env, API keys, and credentials out of Git, screenshots, and public documentation.
+- Demo accounts are created only when the database is empty, so changing a password variable later does not change an existing account.
+- Citations in a Gemini answer are checked: a source filename the answer cites that no tool returned during that investigation is listed under `citations.unsupported` and flagged in the answer text.
+- The evidence index records a fingerprint of the evidence files, embedding model and chunk size. If any of them change, search refuses to use the old index until it is rebuilt, and startup rebuilds it.
 - Serve it over HTTPS and replace the demo login with proper authentication before exposing it publicly.
 - Configure persistent storage for the database and ChromaDB data when deploying to an environment where local filesystem data may be temporary.
 - Restrict access to manager-only operations using the server-side authorization checks; frontend visibility alone is not a security boundary.
