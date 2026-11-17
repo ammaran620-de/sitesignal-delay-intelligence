@@ -117,3 +117,7 @@ The in-app Guided demo runs five automated checks as the manager (steps 1 to 4 a
 - Recovery scenarios do not optimise labour or resources and do not establish operational feasibility.
 - Authentication and session configuration are demonstration-level and require hardening before production use.
 - No historical project dataset is included, so the project makes no predictive ML performance claim.
+
+## Licence
+
+The code is released under the MIT licence (`LICENSE`). The project records and evidence documents in `data/` are synthetic and were written for this demonstration. Dependencies (FastAPI, ChromaDB, the Google GenAI SDK and others) keep their own licences. Use of the Gemini API is governed by Google's terms.
